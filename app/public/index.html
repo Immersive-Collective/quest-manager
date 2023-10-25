@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Detector</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- A simple container where we will display our information -->
+    <pre id="deviceInfo"></pre>
+
+    <script>
+        $(document).ready(function() {
+            // Fetch device information from the server when the page is loaded
+            $.get('/devices', function(data) {
+                // Insert the text data into the <pre> element, preserving the formatting
+                $('#deviceInfo').text(data);
+            });
+        });
+    </script>
+</body>
+</html>
