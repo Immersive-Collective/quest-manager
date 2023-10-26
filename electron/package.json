@@ -1,0 +1,43 @@
+{
+  "name": "quest-manager",
+  "version": "1.0.0",
+  "description": "Managing Quest Devices",
+  "author": "Extended Realities",
+  "main": "electron/electron-starter.js",
+  "scripts": {
+    "start": "electron electron/electron-starter.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "your.app.id",
+    "mac": {
+      "category": "your.app.category",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

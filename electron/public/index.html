@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... your head tags ... -->
+
+    <style>
+
+        body {
+            font-size: 0.7rem;
+            font-family: Helvetica, Avenir, Roboto, sans-serif;
+            border: none;
+            margin: none;
+            background: black;
+            color: white;
+        }
+
+        /* Style for the device card */
+        .device-card {
+            border: 1px solid white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .layout {
+            display: flex;
+        }
+
+        .device-list {
+            flex: 1;
+        }
+
+        .side-panel {
+            width: 80%; /* Adjust as needed */
+            background: #333; /* Dark background for the side panel */
+            color: white;
+            padding: 10px;
+        }
+
+        .video-player {
+            flex: 1; /* adjust as necessary to balance the column widths */
+            padding: 10px;
+            /* Add other styles as needed */
+        }        
+
+        .file-item {
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #555; /* Dark grey background */
+            color: white; /* White text */
+            border: none;
+            text-align: left;
+            outline: none;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s; /* Smooth background color change */
+        }
+
+        .file-item:hover {
+            background-color: #777; /* Lighter grey on hover */
+        }
+
+        /* If you want to add more styles when the user clicks on the file item, you can add them here */
+        .file-item:active {
+            background-color: #999; /* Even lighter grey while clicking */
+        }
+
+
+    </style>
+
+
+</head>
+
+<body>
+    <h1>Connected Headsets</h1>
+    <div class="layout">
+        <div id="devices-list" class="device-list"></div>
+        <div id="side-panel" class="side-panel">
+            <h2>Device Files</h2>
+            <div id="file-list">Click on a device to see its files.</div>
+                <div id="video-player" class="video-player"></div> 
+        </div>
+    </div>
+
+
+<script>
+
+
+    // New function to handle playing videos.
+    function playVideo(fileName, deviceId) {
+        // Construct the URL for the video file. This depends on how your server serves the files.
+        // This example assumes there is a server route set up as '/video' that can stream video files.
+        let videoUrl = `/video?deviceId=${encodeURIComponent(deviceId)}&fileName=${encodeURIComponent(fileName)}`;
+
+        // Create a video element or use an existing one in the video-player div.
+        let videoPlayer = document.getElementById('video-player');
+        videoPlayer.innerHTML = ''; // Clear the current video content.
+
+        let video = document.createElement('video');
+        video.src = videoUrl;
+        video.controls = true; // So the user can control playback.
+        video.autoplay = true; // Start playing immediately.
+
+        videoPlayer.appendChild(video);
+    }
+
+
+
+    function syncFiles(deviceId) {
+
+        console.log("syncFiles: deviceId:",deviceId)
+
+        fetch('/sync', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ deviceId: deviceId })
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+
+
+
+    async function fetchDeviceFiles(deviceId) {
+        try {
+            // Request the files from the device. Server-side code is needed to handle this request.
+            let response = await fetch(`/device-files?deviceId=${deviceId}`);
+            let files = await response.json();
+
+            let fileList = document.getElementById('file-list');
+            fileList.innerHTML = ''; // Clear the current list.
+
+            if (files.length === 0) {
+                fileList.innerHTML = 'No files found on this device.';
+            } else {
+                files.forEach(file => {
+                    let fileItem = document.createElement('div');
+                    fileItem.textContent = file;
+                    fileItem.className = 'file-item'; // Apply the styles.
+
+                    fileItem.onclick = function() {
+                        playVideo(file, deviceId);
+                    };
+
+                    fileList.appendChild(fileItem);
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching device files:', error);
+        }
+    }
+
+
+
+
+    async function fetchDevices() {
+        try {
+            let response = await fetch('/devices');
+            let devices = await response.json();
+            let container = document.getElementById('devices-list');
+            
+            
+            // Clear the current list
+            container.innerHTML = '';
+
+            // Add all devices to the page
+            // Add all devices to the page
+            devices.forEach((device) => {
+                let card = document.createElement('div');
+                let batteryPerc;
+
+                if(device.battery) {
+                    batteryPerc = (device.battery.level / device.battery.scale) * 100;
+                } else {
+                    batteryPerc = "?"
+                }
+
+                card.className = 'device-card';
+
+                card.innerHTML = `
+                    <h2>${device.model}</h2>
+                    <p>ID: ${device.id} - ${device.status}</p> 
+                    <p>Battery: ${batteryPerc}%</p>
+                   <button data-device-id="${device.id}">Sync</button>
+
+                    `;
+                
+                container.appendChild(card);
+
+
+                var img = document.createElement('img'); 
+                
+                // Set the source based on device model
+                if (device.model === 'Quest 2') {
+                    img.src = '/images/quest2.webp';
+                }
+                if (device.model === 'Quest 3') {
+                    img.src = '/images/quest3.webp';
+                }
+
+                // Set other attributes or styles if needed
+                img.alt = 'Device image';
+                
+                // Append it to your page's content
+                //var container = document.getElementById('devices-list');
+                card.appendChild(img);
+
+              // NEW: Specific event listener for the sync button within the card.
+                let syncButton = card.querySelector('button[data-device-id]');
+                syncButton.addEventListener('click', function(event) {
+                    // Prevent the click on the button from triggering the card's click event.
+                    event.stopPropagation();
+
+                    // Call the function to sync files for this specific device.
+                    syncFiles(device.id);
+                });
+
+
+
+                card.addEventListener('click', function() {
+                    fetchDeviceFiles(device.id); // Assuming device.id is the identifier for the device.
+                });
+
+
+
+            });
+
+            // Re-fetch every 5 seconds
+            setTimeout(fetchDevices, 5000);
+        } catch (error) {
+            console.error('Error fetching devices:', error);
+        }
+    }
+
+    // Initial fetch
+    fetchDevices();
+</script>
+
+
+
+
+
+</body>
+</html>
