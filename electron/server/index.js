@@ -3,12 +3,33 @@ const path = require('path');
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
+const util = require('util');
+const findExec = require('find-exec');
+
 const port = 2222;
 
 
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '../public')));  // Serve the public directory
+
+
+
+
+let adbPath;
+
+async function initializeAdbPath() {
+  try {
+    adbPath = `/opt/homebrew/bin/adb`; //findExec('adb');
+    if (!adbPath) {
+      console.error('Could not find adb');
+      return;
+    }
+    console.log(`ADB located at: ${adbPath}`);
+  } catch (error) {
+    console.error('An error occurred while locating adb:', error);
+  }
+}
 
 
 function getDeviceFiles(deviceId, callback) {
@@ -18,7 +39,7 @@ function getDeviceFiles(deviceId, callback) {
     // Command to list files in the specific directory on the device
     // Unfortunately, we cannot directly get the creation date of files in Android's shell
     // So we will list all files and filter in the Node.js environment
-    const command = `adb -s ${deviceId} shell ls -l /sdcard/Oculus/VideoShots/ | awk '{print $NF}'`;
+    const command = `${adbPath} -s ${deviceId} shell ls -l /sdcard/Oculus/VideoShots/ | awk '{print $NF}'`;
 
     exec(command, (err, stdout, stderr) => {
         if (err) {
@@ -39,7 +60,7 @@ function getDeviceFiles(deviceId, callback) {
 }
 
 function downloadFile(deviceId, remoteFilePath, localFilePath, callback) {
-    const command = `adb -s ${deviceId} pull "${remoteFilePath}" "${localFilePath}"`;
+    const command = `${adbPath} -s ${deviceId} pull "${remoteFilePath}" "${localFilePath}"`;
     exec(command, (err, stdout, stderr) => {
         if (err) {
             console.error(`Error downloading file: ${stderr}`);
@@ -88,7 +109,7 @@ function parseBatteryData(batteryData) {
 const connectedDevices = new Set();
 
 function getDevices(callback) {
-    exec('adb devices', (err, stdout, stderr) => {
+    exec(`${adbPath} devices`, (err, stdout, stderr) => {
         if (err) {
             console.error('Error fetching devices:', stderr);
             return;
@@ -115,7 +136,7 @@ function getDevices(callback) {
 
             // Fetch additional details like model
             const getModelPromise = new Promise((resolve) => {
-                const command = `adb -s ${deviceId} shell getprop ro.product.model`;
+                const command = `${adbPath} -s ${deviceId} shell getprop ro.product.model`;
                 exec(command, (err, stdout, stderr) => {
                     if (!err) {
                         device.model = stdout.trim();
@@ -126,7 +147,7 @@ function getDevices(callback) {
 
             // Fetch battery details
             const getBatteryPromise = new Promise((resolve) => {
-                const command = `adb -s ${deviceId} shell dumpsys battery`;
+                const command = `${adbPath} -s ${deviceId} shell dumpsys battery`;
                 exec(command, (err, stdout, stderr) => {
                     if (!err) {
                         // parse the battery information here, simplified for brevity
@@ -157,7 +178,7 @@ function connectDeviceOverTCP(deviceId) {
     }
 
     // Replace this with your command to obtain the device's IP address
-    const commandToGetIP = `adb -s ${deviceId} shell ip route | awk '{print $9}'`;
+    const commandToGetIP = `${adbPath} -s ${deviceId} shell ip route | awk '{print $9}'`;
 
     exec(commandToGetIP, (err, stdout, stderr) => {
         if (err) {
@@ -166,7 +187,7 @@ function connectDeviceOverTCP(deviceId) {
         }
 
         const ip = stdout.trim(); // assuming the IP is the result of your command
-        const connectCommand = `adb -s ${deviceId} tcpip 5555 && adb connect ${ip}:5555`;
+        const connectCommand = `${adbPath} -s ${deviceId} tcpip 5555 && ${adbPath} connect ${ip}:5555`;
 
         exec(connectCommand, (err, stdout, stderr) => {
             if (err) {
@@ -320,8 +341,13 @@ app.use('/images', express.static('public/images'));
 // Trigger the device connection refresh every 5 seconds
 setInterval(refreshDeviceConnections, 5000);
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//     console.log(`Server running at http://localhost:${port}`);
+// });
 
-module.exports = app;  
+// Instead of just exporting the app, you're now exporting an object that includes everything you want to export.
+module.exports = {
+  app,  // This is your Express app
+  initializeAdbPath,  // This is the new function you've added
+};
+

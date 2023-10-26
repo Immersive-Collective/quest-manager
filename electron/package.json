@@ -38,6 +38,7 @@
     "electron-builder": "^24.6.4"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "find-exec": "^1.0.3"
   }
 }
