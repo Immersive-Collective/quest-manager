@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ... your head tags ... -->
 
     <style>
 
@@ -27,20 +26,28 @@
         }
 
         .device-list {
-            flex: 1;
+            width: 13%;
         }
 
         .side-panel {
-            width: 80%; /* Adjust as needed */
+            width: 33%; /* Adjust as needed */
             background: #333; /* Dark background for the side panel */
             color: white;
             padding: 10px;
         }
 
+        .qr-code {
+            width: 33%; /* Adjust as needed */
+            background: #333; /* Dark background for the side panel */
+            color: white;
+            padding: 10px;
+        }        
+
         .video-player {
             flex: 1; /* adjust as necessary to balance the column widths */
-            padding: 10px;
-            /* Add other styles as needed */
+            width: 300px;
+            height: 300px;
+            display: flex;
         }        
 
         .file-item {
@@ -66,8 +73,15 @@
             background-color: #999; /* Even lighter grey while clicking */
         }
 
+        .sync-buttons {
+            display: none;
+        }
+
 
     </style>
+
+   <script src="js/qrcode.min.js"></script> <!-- Adding QR Code library -->
+
 
 
 </head>
@@ -76,15 +90,55 @@
     <h1>Connected Headsets</h1>
     <div class="layout">
         <div id="devices-list" class="device-list"></div>
+
         <div id="side-panel" class="side-panel">
-            <h2>Device Files</h2>
+            <h2><div id="device-name"></div> Files</h2>
             <div id="file-list">Click on a device to see its files.</div>
                 <div id="video-player" class="video-player"></div> 
         </div>
+
+        <div id="qr-code"></div>
+
+
     </div>
 
 
 <script>
+
+
+    function generateQR(text) {
+        let typeNumber = 0;
+        let errorCorrectionLevel = 'L';
+        let qr = qrcode(typeNumber, errorCorrectionLevel);
+        qr.addData(text);
+        qr.make();
+
+        // Customize the size of the QR code here
+        let qrCodeSize = 24; // size of one QR code module in pixels
+        let marginSize = 24; // size of the QR code margin in modules
+
+        // Create link element
+        let qrLink = document.createElement('a');
+        let qrURL = "videos/"+text;
+        qrLink.href = qrURL
+        qrLink.target = '_blank'; // to open in a new tab
+        qrLink.innerHTML = qr.createSvgTag({
+            cellSize: qrCodeSize,
+            margin: marginSize
+        });
+
+        // Clear previous QR code and URL
+        let qrCodeDiv = document.getElementById('qr-code');
+        qrCodeDiv.innerHTML = '';
+
+        // Append clickable QR code
+        qrCodeDiv.appendChild(qrLink);
+
+        // Create and append the URL text
+        let urlText = document.createElement('p');
+        urlText.textContent = location.origin+"/"+qrURL;
+        qrCodeDiv.appendChild(urlText);
+    }    
 
 
     // New function to handle playing videos.
@@ -128,11 +182,14 @@
 
 
 
-    async function fetchDeviceFiles(deviceId) {
+    async function fetchDeviceFiles(device) {
+        let deviceId = device.id;
         try {
             // Request the files from the device. Server-side code is needed to handle this request.
             let response = await fetch(`/device-files?deviceId=${deviceId}`);
             let files = await response.json();
+
+            document.getElementById("device-name").innerHTML = device.model +" / "+deviceId ;
 
             let fileList = document.getElementById('file-list');
             fileList.innerHTML = ''; // Clear the current list.
@@ -147,6 +204,7 @@
 
                     fileItem.onclick = function() {
                         playVideo(file, deviceId);
+                        generateQR(file);
                     };
 
                     fileList.appendChild(fileItem);
@@ -188,7 +246,7 @@
                     <h2>${device.model}</h2>
                     <p>ID: ${device.id} - ${device.status}</p> 
                     <p>Battery: ${batteryPerc}%</p>
-                   <button data-device-id="${device.id}">Sync</button>
+                   <button class="sync-buttons" data-device-id="${device.id}">Sync</button>
 
                     `;
                 
@@ -225,7 +283,8 @@
 
 
                 card.addEventListener('click', function() {
-                    fetchDeviceFiles(device.id); // Assuming device.id is the identifier for the device.
+                    fetchDeviceFiles(device); // Assuming device.id is the identifier for the device.
+                    syncFiles(device.id)
                 });
 
 
