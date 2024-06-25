@@ -1,170 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <style>
-
         body {
             font-size: 0.7rem;
-            font-family: Helvetica, Avenir, Roboto, sans-serif;
+            font-family: Avenir, Arial, Roboto, Helvetica, sans-serif;
             border: none;
             margin: none;
             background: black;
             color: white;
         }
-
-        /* Style for the device card */
         .device-card {
-            border: 1px solid white;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            border: 1px dotted white;
+            padding: 1rem;
+            margin: 0.6rem;
+            margin-left: ;
+            border-radius: 24px;
         }
-
         .layout {
             display: flex;
+            height: 100%;
         }
-
         .device-list {
-            width: 13%;
+            width: 178px;
         }
-
         .side-panel {
-            width: 33%; /* Adjust as needed */
-            background: #333; /* Dark background for the side panel */
+            width: 20%; 
+            background: 
             color: white;
             padding: 10px;
+            border-radius: 24px;
         }
-
-        .qr-code {
-            width: 33%; /* Adjust as needed */
-            background: #333; /* Dark background for the side panel */
-            color: white;
+        #qr-code {
+            width: 10%;
+            background: color: white;
             padding: 10px;
-        }        
-
+            position: absolute;
+            display: block;
+            right: 80px;
+            top: 64px;
+        }
         .video-player {
-            flex: 1; /* adjust as necessary to balance the column widths */
-            width: 300px;
-            height: 300px;
+            flex: 1; 
+            width: 420px;
+            height: 420px;
             display: flex;
-        }        
-
+            padding: 1rem;
+        }
+        #file-list {
+            border: 1px dashed #222222;
+            height: 620px;
+            overflow: scroll;            
+        }
         .file-item {
             cursor: pointer;
             padding: 10px;
             margin: 5px 0;
-            background-color: #555; /* Dark grey background */
-            color: white; /* White text */
+            background-color: #333333;
+            color: white; 
             border: none;
             text-align: left;
             outline: none;
             display: block;
-            border-radius: 5px;
-            transition: background-color 0.3s; /* Smooth background color change */
+            border-radius: 1rem;
+            transition: background-color 0.3s; 
         }
-
         .file-item:hover {
-            background-color: #777; /* Lighter grey on hover */
+            background-color: #777777;
         }
-
-        /* If you want to add more styles when the user clicks on the file item, you can add them here */
         .file-item:active {
-            background-color: #999; /* Even lighter grey while clicking */
+            background-color: orange;
+        }
+        img {
+            border-radius: 1rem;
+            margin: 0.1rem;
+        }
+        .button {
+          display: inline-block;
+          padding: 0.4rem; /* Button padding */
+          font-size: 1rem; /* Adjust font size */
+          line-height: 0;
+          cursor: pointer; /* Cursor on hover */
+          text-align: center;
+          text-decoration: none;
+          outline: none;
+          color: #fff; /* Text color */
+          background-color: #4CAF50; /* Background color */
+          border: none;
+          border-radius: 0.8rem; /* Rounded corners */
+          transition: all 0.3s;
+          margin: 0.1rem;
+          min-width: 2rem;
+          min-height: 2rem;
+        }
+        .button:hover {
+          background-color: #3e8e41; 
+        }
+        .button:active {
+          background-color: #3e8e41; /* Active background */
+          transform: scale(0.9); /* 'Presses' the button down */
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .recording {
+            background-color: red;
+            animation: pulse 2s infinite;
         }
 
-        .sync-buttons {
-            display: none;
+        .button-rec, .button-photo {
+            /* Shared styles for both buttons */
+            /* ... (other styles like padding, border-radius, etc.) ... */
         }
+
+
+        @keyframes pulsate {
+            0% { 
+                transform: scale(1.0);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 0.5;
+            }
+            100% { 
+                transform: scale(1.0);
+                opacity: 1;
+            }
+        }
+
+        .button-rec {
+            background-color: green; /* Or any color you prefer for the record button */
+        }
+
+        .button-rec.recording {
+            background-color: red; /* Recording state color */
+            animation: pulsate 2s infinite;
+        }
+
+        .button-photo {
+            background-color: #62ff62; /* Or any color you prefer for the photo button */
+        }
+        /* Hover styles */
+        .button-rec:hover { background-color: #ff3c3c; }
+        .button-photo:hover { background-color: #3cff3c; }
+        /* Active styles */
+        .button-rec:active, .button-photo:active {
+            transform: scale(0.9);
+        }
+
+        #right-p {
+            width: 100%;
+            height: 100%;
+            border: 1px solid white;
+        }
+
+
+
 
 
     </style>
-
-   <script src="js/qrcode.min.js"></script> <!-- Adding QR Code library -->
-
-
-
+   <script src="js/qrcode.min.js"></script>
 </head>
-
 <body>
-    <h1>Connected Headsets</h1>
+    <h1>Headsets:</h1>
     <div class="layout">
-        <div id="devices-list" class="device-list"></div>
 
+
+
+
+        <div id="devices-list" class="device-list"></div>
+        
         <div id="side-panel" class="side-panel">
             <h2><div id="device-name"></div> Files</h2>
             <div id="file-list">Click on a device to see its files.</div>
-                <div id="video-player" class="video-player"></div> 
+                 
+        </div>
+        
+        <div id="right-p">
+            <div id="video-player" class="video-player"></div>
+            <div id="qr-code"></div>
         </div>
 
-        <div id="qr-code"></div>
 
 
     </div>
-
-
 <script>
-
-
+function toggleRecording(deviceId, action) {
+    console.log("Toggling recording on device:", deviceId, "Action:", action);
+    // Include the action in the body of your request
+    fetch('/toggle-recording', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ deviceId: deviceId, action: action }) // action added here
+    })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+function captureScreenshot(deviceId) {
+    console.log("Capturing photo on device:", deviceId);
+    // Similar to the toggleRecording function, make a request to the server endpoint
+    fetch('/capture-screenshot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ deviceId: deviceId })
+    })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
     function generateQR(text) {
         let typeNumber = 0;
         let errorCorrectionLevel = 'L';
         let qr = qrcode(typeNumber, errorCorrectionLevel);
         qr.addData(text);
         qr.make();
-
-        // Customize the size of the QR code here
-        let qrCodeSize = 24; // size of one QR code module in pixels
-        let marginSize = 24; // size of the QR code margin in modules
-
-        // Create link element
+        let qrCodeSize = 6; 
+        let marginSize = 6;
         let qrLink = document.createElement('a');
         let qrURL = "videos/"+text;
         qrLink.href = qrURL
-        qrLink.target = '_blank'; // to open in a new tab
+        qrLink.target = '_blank'; 
         qrLink.innerHTML = qr.createSvgTag({
             cellSize: qrCodeSize,
             margin: marginSize
         });
-
-        // Clear previous QR code and URL
         let qrCodeDiv = document.getElementById('qr-code');
         qrCodeDiv.innerHTML = '';
-
-        // Append clickable QR code
         qrCodeDiv.appendChild(qrLink);
-
-        // Create and append the URL text
         let urlText = document.createElement('p');
         urlText.textContent = location.origin+"/"+qrURL;
         qrCodeDiv.appendChild(urlText);
-    }    
-
-
-    // New function to handle playing videos.
+    }
     function playVideo(fileName, deviceId) {
-        // Construct the URL for the video file. This depends on how your server serves the files.
-        // This example assumes there is a server route set up as '/video' that can stream video files.
+
         let videoUrl = `/video?deviceId=${encodeURIComponent(deviceId)}&fileName=${encodeURIComponent(fileName)}`;
-
-        // Create a video element or use an existing one in the video-player div.
         let videoPlayer = document.getElementById('video-player');
-        videoPlayer.innerHTML = ''; // Clear the current video content.
-
+        videoPlayer.innerHTML = '';
+        
         let video = document.createElement('video');
         video.src = videoUrl;
-        video.controls = true; // So the user can control playback.
-        video.autoplay = true; // Start playing immediately.
-
+        video.controls = true; 
+        video.autoplay = true;
         videoPlayer.appendChild(video);
     }
-
-
-
     function syncFiles(deviceId) {
-
         console.log("syncFiles: deviceId:",deviceId)
-
         fetch('/sync', {
             method: 'POST',
             headers: {
@@ -178,35 +279,27 @@
             console.error('Error:', error);
         });
     }
-
-
-
-
+    let recordingStates = {};    
     async function fetchDeviceFiles(device) {
         let deviceId = device.id;
         try {
-            // Request the files from the device. Server-side code is needed to handle this request.
             let response = await fetch(`/device-files?deviceId=${deviceId}`);
             let files = await response.json();
-
             document.getElementById("device-name").innerHTML = device.model +" / "+deviceId ;
-
             let fileList = document.getElementById('file-list');
-            fileList.innerHTML = ''; // Clear the current list.
 
+            fileList.innerHTML = '';
             if (files.length === 0) {
                 fileList.innerHTML = 'No files found on this device.';
             } else {
                 files.forEach(file => {
                     let fileItem = document.createElement('div');
                     fileItem.textContent = file;
-                    fileItem.className = 'file-item'; // Apply the styles.
-
+                    fileItem.className = 'file-item';
                     fileItem.onclick = function() {
                         playVideo(file, deviceId);
                         generateQR(file);
                     };
-
                     fileList.appendChild(fileItem);
                 });
             }
@@ -215,96 +308,104 @@
         }
     }
 
-
-
-
     async function fetchDevices() {
         try {
             let response = await fetch('/devices');
             let devices = await response.json();
             let container = document.getElementById('devices-list');
-            
-            
-            // Clear the current list
             container.innerHTML = '';
-
-            // Add all devices to the page
-            // Add all devices to the page
             devices.forEach((device) => {
                 let card = document.createElement('div');
                 let batteryPerc;
-
                 if(device.battery) {
                     batteryPerc = (device.battery.level / device.battery.scale) * 100;
                 } else {
-                    batteryPerc = "?"
+                    batteryPerc = "  "
                 }
 
                 card.className = 'device-card';
 
-                card.innerHTML = `
-                    <h2>${device.model}</h2>
-                    <p>ID: ${device.id} - ${device.status}</p> 
-                    <p>Battery: ${batteryPerc}%</p>
-                   <button class="sync-buttons" data-device-id="${device.id}">Sync</button>
-
-                    `;
-                
                 container.appendChild(card);
-
-
-                var img = document.createElement('img'); 
-                
-                // Set the source based on device model
+                var img = document.createElement('img');
                 if (device.model === 'Quest 2') {
                     img.src = '/images/quest2.webp';
                 }
                 if (device.model === 'Quest 3') {
                     img.src = '/images/quest3.webp';
                 }
-
-                // Set other attributes or styles if needed
                 img.alt = 'Device image';
-                
-                // Append it to your page's content
-                //var container = document.getElementById('devices-list');
                 card.appendChild(img);
 
-              // NEW: Specific event listener for the sync button within the card.
+                card.innerHTML += `
+                    <h1>${device.model}</h1>
+                    <p>${device.id} - ${device.status}</p> 
+                    <p>Battery: ${batteryPerc}%</p>
+                    <button class="button" data-device-id="${device.id}">↺</button>
+                    <button class="button-rec button" data-device-id="${device.id}">⏺</button>
+                    <button class="button-photo button" data-device-id="${device.id}">📷</button>
+                `;
+
+
                 let syncButton = card.querySelector('button[data-device-id]');
                 syncButton.addEventListener('click', function(event) {
-                    // Prevent the click on the button from triggering the card's click event.
+                    fetchDeviceFiles(device); 
                     event.stopPropagation();
-
-                    // Call the function to sync files for this specific device.
                     syncFiles(device.id);
                 });
-
-
-
-                card.addEventListener('click', function() {
-                    fetchDeviceFiles(device); // Assuming device.id is the identifier for the device.
-                    syncFiles(device.id)
+                img.addEventListener('click', function(event) {
+                    fetchDeviceFiles(device); 
+                    event.stopPropagation();
+                    syncFiles(device.id);
                 });
+                
+                let recButton = card.querySelector('.button-rec[data-device-id]');
+                
+                let photoButton = card.querySelector('.button-photo[data-device-id]');
+                let isRecording = false; 
 
 
 
+                   // You have a recording state stored in recordingStates, which is great.
+                    recButton.addEventListener('click', function(event) {
+                        // If this device's state hasn't been initialized, default to false (not recording).
+                        if (recordingStates[device.id] === undefined) {
+                            recordingStates[device.id] = false;
+                        }
+
+                        // Determine the action based on whether we're currently recording.
+                        const action = recordingStates[device.id] ? 'stop' : 'start';
+
+                        // Toggle the state for this device.
+                        recordingStates[device.id] = !recordingStates[device.id];
+
+                        // Change the button style based on the recording state.
+                        if (recordingStates[device.id]) {
+                            recButton.classList.add('recording'); // Add the recording class (red and pulsating).
+                        } else {
+                            recButton.classList.remove('recording'); // Remove the recording class (back to normal).
+                        }
+
+                        // Pass the action to your function.
+                        toggleRecording(device.id, action);
+
+                        // Prevent the event from bubbling up.
+                        event.stopPropagation();
+                    });
+
+                photoButton.addEventListener('click', function(event) {
+                    captureScreenshot(device.id);
+                    event.stopPropagation();
+                });                
             });
-
-            // Re-fetch every 5 seconds
             setTimeout(fetchDevices, 5000);
+
         } catch (error) {
+
             console.error('Error fetching devices:', error);
+
         }
     }
-
-    // Initial fetch
     fetchDevices();
 </script>
-
-
-
-
-
 </body>
 </html>

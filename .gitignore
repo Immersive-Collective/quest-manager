@@ -1,4 +1,7 @@
 
+*.zip
+archive
+
 .DS_Store
 *.mp4
 
