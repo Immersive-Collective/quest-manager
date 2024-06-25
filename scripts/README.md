@@ -1,4 +1,4 @@
-##Shell
+## Shell
 
 <img width="310" alt="Screenshot 2024-06-25 at 16 44 23" src="https://github.com/Immersive-Collective/quest-manager/assets/27820237/f28ab5ac-166e-4bbf-ac5f-82a77b9c4074">
 
@@ -8,7 +8,7 @@ https://github.com/Immersive-Collective/quest-manager/assets/27820237/37f1b80b-e
 
 
 
-##Powershell
+## Powershell
 
 1. Save the script to a file, for example `adb_auto_connect.ps1`.
 
