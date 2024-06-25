@@ -4,6 +4,10 @@
 
 
 
+https://github.com/Immersive-Collective/quest-manager/assets/27820237/37f1b80b-ee07-48b3-8cc3-937c41d2aff1
+
+
+
 ##Powershell
 
 1. Save the script to a file, for example `adb_auto_connect.ps1`.
